@@ -1,2 +1,2 @@
 # research
-Dedicated repository for RnD team of Indonesia AI.
+Dedicated repository for RnD team of AI for Disaster Management.
