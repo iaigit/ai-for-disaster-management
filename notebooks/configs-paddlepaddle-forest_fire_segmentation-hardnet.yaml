@@ -1,0 +1,48 @@
+batch_size: 16
+iters: 64000
+
+train_dataset:
+  type: Dataset
+  dataset_root: /content/datasets
+  train_path: /content/datasets/train.txt
+  num_classes: 2
+  transforms:
+    - type: Resize
+      target_size: [640, 480]
+    - type: RandomDistort
+    - type: RandomBlur
+    - type: RandomNoise
+    - type: RandomHorizontalFlip
+    - type: Normalize
+  mode: train
+
+val_dataset:
+  type: Dataset
+  dataset_root: /content/datasets
+  val_path: /content/datasets/val.txt
+  num_classes: 2
+  transforms:
+    - type: Resize
+      target_size: [640, 480]
+    - type: Normalize
+  mode: val
+
+optimizer:
+  type: sgd
+  momentum: 0.9
+  weight_decay: 5.0e-4
+
+lr_scheduler:
+  type: PolynomialDecay
+  learning_rate: 0.02
+
+loss:
+  types:
+    - type: BootstrappedCrossEntropyLoss
+      min_K: 4096
+      loss_th: 0.3
+  coef: [1]
+
+model:
+  type: HarDNet
+  pretrained: null
