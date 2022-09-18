@@ -7,7 +7,7 @@ from PIL import Image
 from helpers import predict_image
 
 DEVICE_INFERENCE = "CPU"
-MODEL_PATH = "../experiment-active_learning/all_datasets/onnx_inference_model.onnx"
+MODEL_PATH = "./onnx_inference_model.onnx"
 
 # Set page config
 st.set_page_config(
