@@ -5,6 +5,8 @@ Considering the challenges and issues of current methods, using Unmanned Aerial 
 
 We, Indonesia AI in collaboration with OMDENA, are now progressing on building AI solution for powering drones in disaster relief scenarios and operations such as wildfires to facilitate early fire detection before a catastrophic event happens. We are working AI project to build, to optimize and to deploy the winning model, which we intend to open source for the scientific community to help combat forest fires in Indonesia so we can build a better Indonesia for generations to come.
 
+Omdena Indonesia Chapter: https://bit.ly/OmdenaIndonesiaChapter
+
 ## How to run this repository
 
 ```bash
