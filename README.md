@@ -18,4 +18,4 @@ python download_weights.py
 streamlit run app.py
 ```
 
-Don't hesitate to contact us if you find issues on running or deploying this repository.
+Don't hesitate to contact us if you find any issues on running or deploying this repository.
