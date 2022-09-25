@@ -14,10 +14,11 @@ Our Discord Server: https://discord.gg/XpByJncdSV
 ```bash
 # Python version 3.7.9 or newer
 git clone https://github.com/iaigit/ai-for-disaster-management.git
-cd deploy
-pip install -r requirements.txt
-python download_weights.py
-streamlit run app.py
+cd ai-for-disaster-management
+git checkout group5-detection
+# run from this dir
+pip install -r deploy/requirements.txt
+streamlit run deploy/app.py
 ```
 
 Don't hesitate to contact us if you find any issues on running or deploying this repository.

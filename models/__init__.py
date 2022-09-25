@@ -1,1 +1,1 @@
-from models.squeezenet import SqueezeNet
+from models.detection.mobilenetv3 import ForestFireRecognition, Predict
