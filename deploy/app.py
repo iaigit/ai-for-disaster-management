@@ -28,6 +28,7 @@ if img is not None:
 
 
 st.markdown("<h4> 📸 Detect From Videos</h4>", unsafe_allow_html=True)
+st.caption("press q to interupt")
 vid = st.file_uploader("Choose a file", key="vids")
 if vid is not None:
     ts = datetime.timestamp(datetime.now())
