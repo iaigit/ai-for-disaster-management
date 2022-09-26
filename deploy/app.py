@@ -1,7 +1,7 @@
 import streamlit as st
 import torch
 import torchvision
-import models.detection.mobilenetv3 as m # run from repository root as module (python -m )
+import mobilenetv3 as m # run from repository root as module (python -m )
 from PIL import Image
 import cv2
 import os
@@ -31,9 +31,9 @@ st.markdown("<h4> 📸 Detect From Videos</h4>", unsafe_allow_html=True)
 vid = st.file_uploader("Choose a file", key="vids")
 if vid is not None:
     ts = datetime.timestamp(datetime.now())
-    vidpath = os.path.join('data/uploads', str(ts)+vid.name)
+    vidpath = os.path.join('./deploy/data/uploads', str(ts)+vid.name)
     outputpath = os.path.join(
-        'data/outputs', os.path.basename(vidpath))
+        './deploy/data/outputs', os.path.basename(vidpath))
     with open(vidpath, mode="wb") as f:
         f.write(vid.getbuffer())
     vid = cv2.VideoCapture(vidpath)
@@ -57,7 +57,8 @@ if vid is not None:
             break
     vid.release()
     cv2.destroyAllWindows()
-
+    # delete temp files
+    os.remove(vidpath)
 
 # RTC_CONFIGURATION = RTCConfiguration(
 #     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}

@@ -1,1 +1,0 @@
-from models.detection.mobilenetv3 import ForestFireRecognition, Predict
