@@ -25,10 +25,10 @@ streamlit run app.py
 
 ### PyTorch
 
-[README.md](./experiments/training/pytorch/README.md)
+[How to train the model with PyTorch](./experiments/training/pytorch/README.md)
 
 ### PaddlePaddle
 
-[README.md](./experiments/training/paddlepaddle/README.md)
+[How to train the model with PaddlePaddle](./experiments/training/paddlepaddle/README.md)
 
 Don't hesitate to contact us if you find any issues on running or deploying this repository.
