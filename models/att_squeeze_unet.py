@@ -83,12 +83,16 @@ class AttSqueezeUnet(nn.Module):
         )
         self.up_1 = DeFire(512, 32, 512, 32, 256)
         self.up_2 = nn.Sequential(
-            ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=256, out_channels=256),
+            ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=512, out_channels=256),
             DeFire(256, 16, 256, 16, 128),
         )
         self.up_3 = nn.Sequential(
-            ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=128, out_channels=128),
+            ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=256, out_channels=128),
             DeFire(128, 16, 128, 16, 64),
+        )
+        self.up_4 = nn.Sequential(
+            ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=128, out_channels=64),
+            DeFire(64, 16, 64, 16, 64),
         )
         self.last_layer = nn.Sequential(
             ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=64, out_channels=64),
@@ -107,11 +111,13 @@ class AttSqueezeUnet(nn.Module):
 
         u_1 = self.up_1(d_4)
         print('u_1: ', u_1.shape)
-        u_2 = self.up_2(torch.cat([u_1, d_3], dim=1))
+        u_2 = self.up_2(torch.concat([u_1, d_3], dim=1))
         print('u_2: ', u_2.shape)
-        u_3 = self.up_3(torch.cat([u_2, d_2], dim=1))
+        u_3 = self.up_3(torch.concat([u_2, d_2], dim=1))
         print('u_3: ', u_3.shape)
-        last_layer = self.last_layer(torch.cat([u_3, d_1], dim=1))
+        u_4 = self.up_4(torch.concat([u_3, d_1], dim=1))
+        print('u_4: ', u_4.shape)
+        last_layer = self.last_layer(u_4)
         print('last_layer: ', last_layer.shape)
 
         return last_layer
