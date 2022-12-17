@@ -2,6 +2,38 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
+class Attention_block(nn.Module):
+    def __init__(self,F_g,F_l,F_int):
+        super(Attention_block,self).__init__()
+        self.W_g = nn.Sequential(
+            nn.Conv2d(F_g, F_int, kernel_size=1,stride=1,padding=0,bias=True),
+            nn.BatchNorm2d(F_int)
+            )
+        
+        self.W_x = nn.Sequential(
+            nn.Conv2d(F_l, F_int, kernel_size=1,stride=1,padding=0,bias=True),
+            nn.BatchNorm2d(F_int)
+        )
+
+        self.psi = nn.Sequential(
+            nn.Conv2d(F_int, 1, kernel_size=1,stride=1,padding=0,bias=True),
+            nn.BatchNorm2d(1),
+            nn.Sigmoid()
+        )
+        
+        self.relu = nn.ReLU(inplace=True)
+        
+
+    def forward(self,g,x):
+        g1 = self.W_g(g)
+        x1 = self.W_x(x)
+        psi = self.relu(g1+x1)
+        psi = self.psi(psi)
+
+        return x*psi
+
+
 class Fire(nn.Module):
     def __init__(self, input_channel, s1x1, e1x1, e3x3):
         super(Fire, self).__init__()
@@ -11,6 +43,7 @@ class Fire(nn.Module):
         self.conv4 = nn.Conv2d(e3x3, e3x3, kernel_size=3, padding=1)
         self.relu = nn.ReLU(inplace=True)
     
+
     def forward(self, x):
         x = self.conv1(x)
         x = self.relu(x)
@@ -22,6 +55,7 @@ class Fire(nn.Module):
         x = self.relu(x)
 
         return x
+
 
 class DeFire(nn.Module):
     def __init__(self, input_channel, s1x1, e1x1, e3x3, last_channel):
@@ -32,6 +66,7 @@ class DeFire(nn.Module):
         self.resample = nn.Upsample(scale_factor=2, mode='bilinear')
         self.conv4 = ConvBlock(3, 1, 1, e3x3, last_channel)
     
+
     def forward(self, x):
         x = self.conv1(x)
         x = self.conv2(x)
@@ -39,6 +74,7 @@ class DeFire(nn.Module):
         x = self.resample(x)
         x = self.conv4(x)
         return x
+
 
 class ConvBlock(nn.Module):
     def __init__(self, kernel_size, stride, padding, in_channels, out_channels, max_pool=False):
@@ -50,6 +86,7 @@ class ConvBlock(nn.Module):
         if max_pool:
             self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
         
+
     def forward(self, x):
         x = self.conv(x)
         x = self.relu(x)
@@ -82,14 +119,17 @@ class AttSqueezeUnet(nn.Module):
             ConvBlock(kernel_size=3, stride=1, padding=1, in_channels=256, out_channels=512),
         )
         self.up_1 = DeFire(512, 32, 512, 32, 256)
+        self.att1 = Attention_block(256, 256, 128)
         self.up_2 = nn.Sequential(
             ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=512, out_channels=256),
             DeFire(256, 16, 256, 16, 128),
         )
+        self.att2 = Attention_block(128, 128, 64)
         self.up_3 = nn.Sequential(
             ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=256, out_channels=128),
             DeFire(128, 16, 128, 16, 64),
         )
+        self.att3 = Attention_block(64, 64, 32)
         self.up_4 = nn.Sequential(
             ConvBlock(kernel_size = 3, stride=1, padding=1, in_channels=128, out_channels=64),
             DeFire(64, 16, 64, 16, 64),
@@ -99,26 +139,31 @@ class AttSqueezeUnet(nn.Module):
             ConvBlock(kernel_size = 1, stride=1, padding=0, in_channels=64, out_channels=64),
             nn.Conv2d(64, 1, kernel_size=1, stride=1, padding=0),
         )
+
+
     def forward(self, x):
         d_1 = self.down_1(x)
-        print('d_1: ', d_1.shape)
+        # print('d_1: ', d_1.shape)
         d_2 = self.down_2(d_1)
-        print('d_2: ', d_2.shape)
+        # print('d_2: ', d_2.shape)
         d_3 = self.down_3(d_2)
-        print('d_3: ', d_3.shape)
+        # print('d_3: ', d_3.shape)
         d_4 = self.down_4(d_3)
-        print('d_4: ', d_4.shape)
+        # print('d_4: ', d_4.shape)
 
         u_1 = self.up_1(d_4)
-        print('u_1: ', u_1.shape)
+        # print('u_1: ', u_1.shape)
+        d_3 = self.att1(d_3, u_1)
         u_2 = self.up_2(torch.concat([u_1, d_3], dim=1))
-        print('u_2: ', u_2.shape)
+        # print('u_2: ', u_2.shape)
+        d_2 = self.att2(d_2, u_2)
         u_3 = self.up_3(torch.concat([u_2, d_2], dim=1))
-        print('u_3: ', u_3.shape)
+        # print('u_3: ', u_3.shape)
+        d_1 = self.att3(d_1, u_3)
         u_4 = self.up_4(torch.concat([u_3, d_1], dim=1))
-        print('u_4: ', u_4.shape)
+        # print('u_4: ', u_4.shape)
         last_layer = self.last_layer(u_4)
-        print('last_layer: ', last_layer.shape)
+        # print('last_layer: ', last_layer.shape)
 
         return last_layer
 
@@ -131,3 +176,4 @@ if __name__ == "__main__":
     print(x.shape)
     y = model(x)
     print(y.shape)
+    torch.save(model.state_dict(), "test.pth")
