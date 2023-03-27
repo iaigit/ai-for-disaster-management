@@ -7,14 +7,8 @@ import torch.optim as optim
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 from segmentation_models_pytorch.utils import metrics as seg_metrics
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-epochs = int(os.getenv('EPOCHS'))
-model_type = os.getenv('MODEL_TYPE')
-criterion_type = os.getenv('CRITERION_TYPE')
+from config import *
+import wandb
 
 
 class SemanticSegmentationLightningModule(pl.LightningModule):
@@ -56,6 +50,21 @@ class SemanticSegmentationLightningModule(pl.LightningModule):
         elif criterion_type == "dice":
             from .loss import dice_loss
             self.criterion = dice_loss.BinaryDiceLoss()
+        
+        wandb.init(project="disaster-management", config={
+            "learning_rate": learning_rate,
+            "weight_decay": weight_decay,
+            "mode_segmentation": mode_segmentation,
+            "num_classes": num_classes,
+            "mask_threshold": mask_threshold,
+            "model_type": model_type,
+            "criterion_type": criterion_type,
+            "epochs": epochs,
+            "image_size": image_size,
+            "mean normalize": mean_normalize,
+            "std normalize": std_normalize,
+            "data": data_name
+        })
 
     def configure_optimizers(self):
         optimizer = optim.Adam(
@@ -108,6 +117,17 @@ class SemanticSegmentationLightningModule(pl.LightningModule):
         self.log(f'{mode}_recall', recall, on_step=on_step, on_epoch=True, prog_bar=True)
         self.log(f'{mode}_dice_score', dice_score, on_step=on_step, on_epoch=True, prog_bar=True)
         self.log(f'{mode}_inference_time', inference_time, on_step=on_step, on_epoch=True, prog_bar=True)
+
+        wandb.log({
+            f"{mode}_iou_score": iou_score,
+            f"{mode}_f1_score": f1_score,
+            f"{mode}_accuracy": accuracy,
+            f"{mode}_precision": precision,
+            f"{mode}_recall": recall,
+            f"{mode}_dice_score": dice_score,
+            f"{mode}_inference_time": inference_time
+        })
+
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -118,3 +138,6 @@ class SemanticSegmentationLightningModule(pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
         return self.main_loop_step(batch, batch_idx, "test")
+    
+    def stop_wandb(self):
+        wandb.finish()

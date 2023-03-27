@@ -5,15 +5,7 @@ import pandas as pd
 import pytorch_lightning as pl
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-import os
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-image_size = int(os.getenv('IMAGE_SIZE'))
-mean_normalize = [float(x) for x in os.getenv('MEAN_NORMALIZE').split(',')]
-std_normalize = [float(x) for x in os.getenv('STD_NORMALIZE').split(',')]
+from config import *
 
 train_image_augmentations = A.Compose([
     A.Resize(image_size, image_size),
