@@ -62,9 +62,9 @@ class Attention_block(nn.Module):
 
         return x*psi
 
-class AttU_Net(nn.Module):
+class AttUNet(nn.Module):
     def __init__(self,img_ch=3,output_ch=1):
-        super(AttU_Net,self).__init__()
+        super(AttUNet,self).__init__()
         
         self.Maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
 
