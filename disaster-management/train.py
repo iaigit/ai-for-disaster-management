@@ -40,7 +40,7 @@ def main():
         precision=16 if fp16 else 32,
         gradient_clip_val=gradient_clip,
         default_root_dir=trainer_root_dir,
-        gpus=0,
+        devices=1,
         accelerator="auto",
     )
 
