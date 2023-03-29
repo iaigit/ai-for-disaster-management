@@ -30,7 +30,7 @@ train_image_augmentations = A.Compose([
     ToTensorV2()
 ])
 test_image_augmentations = A.Compose([
-    A.Resize(image_size[1], image_size[0]),
+    A.Resize(image_size, image_size),
     A.Normalize(mean=mean_normalize, std=std_normalize),
     ToTensorV2()
 ])
