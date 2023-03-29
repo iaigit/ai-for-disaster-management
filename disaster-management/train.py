@@ -5,6 +5,8 @@ from config import *
 
 import pytorch_lightning as pl
 
+import wandb
+
 def main():
     callbacks = [
         ModelCheckpoint(
@@ -42,3 +44,24 @@ def main():
         accelerator="auto",
         auto_select_gpus=True,
     )
+
+    trainer.fit(
+    model=lightning_module, 
+    train_dataloaders=data_module,
+        )
+    
+    trainer.test(dataloaders=data_module, ckpt_path=trainer.checkpoint_callback.best_model_path)
+
+    lightning_module.stop_wandb()
+
+    lightning_module = SemanticSegmentationLightningModule.load_from_checkpoint(
+        trainer.checkpoint_callback.best_model_path,
+        learning_rate=learning_rate,
+        weight_decay=weight_decay,
+        mode_segmentation=mode_segmentation,
+        num_classes=num_classes,
+        mask_threshold=mask_threshold
+    )
+
+    #push the model to the wandb server
+    
