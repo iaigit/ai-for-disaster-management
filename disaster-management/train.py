@@ -65,3 +65,5 @@ def main():
 
     #push the model to the wandb server
     
+if __name__ == '__main__':
+    main()
