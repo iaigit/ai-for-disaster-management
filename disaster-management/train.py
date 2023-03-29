@@ -40,9 +40,8 @@ def main():
         precision=16 if fp16 else 32,
         gradient_clip_val=gradient_clip,
         default_root_dir=trainer_root_dir,
-        devices=-1,
+        gpus=0,
         accelerator="auto",
-        auto_select_gpus=True,
     )
 
     trainer.fit(
